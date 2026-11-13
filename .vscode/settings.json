@@ -1,0 +1,14 @@
+{
+  "makefile.launchConfigurations": [
+    {
+      "cwd": "c:\\Code\\C++\\asm65\\build",
+      "binaryPath": "c:\\Code\\C++\\asm65\\build\\build.exe",
+      "binaryArgs": []
+    },
+    {
+      "cwd": "c:\\Code\\C++\\asm65",
+      "binaryPath": "c:\\Code\\C++\\asm65\\build.exe",
+      "binaryArgs": []
+    }
+  ]
+}
