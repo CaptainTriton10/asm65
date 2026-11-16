@@ -1,2 +1,3 @@
-LDA #16
-ADC $00
+LDX #$FF
+TXA
+ADC #$01

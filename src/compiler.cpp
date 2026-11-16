@@ -38,8 +38,11 @@ static std::vector<uint8_t> getBytes(Instruction instr) {
         case AddressMode::Absolute:
         case AddressMode::AbsoluteX:
         case AddressMode::AbsoluteY:
-            data.push_back((uint8_t)(instr.imm16 & 0xFF00));
+            data.push_back((uint8_t)((instr.imm16 >> 8) & 0x00FF));
             data.push_back((uint8_t)(instr.imm16 & 0x00FF));
+            break;
+
+        default:
             break;
     }
 
@@ -47,8 +50,7 @@ static std::vector<uint8_t> getBytes(Instruction instr) {
 }
 
 void compile(std::string filename, std::vector<Instruction> instructions) {
-    std::ofstream binfile(filename);
-    int fileSize = 0;
+    std::ofstream binfile(filename, std::ios::binary);
 
     initOpCodes();
 
@@ -62,11 +64,16 @@ void compile(std::string filename, std::vector<Instruction> instructions) {
 
         data.reserve(data.size() + bytes.size());
         data.insert(data.end(), bytes.begin(), bytes.end());
-
-        fileSize += bytes.size();
     }
 
-    binfile.write((char *)data.data(), fileSize * sizeof(uint8_t));
+    // for (int i = 0; i < data.size(); i++) {
+    //     std::cout << std::hex << (int)data[i] << " ";
+    // }
+
+    std::cout << std::endl;
+
+    binfile.write((char *)data.data(),
+                  static_cast<std::streamsize>(data.size()));
 }
 
 OpCode *initOpCodes() {
@@ -265,7 +272,7 @@ OpCode *initOpCodes() {
     opCodes[0x3E] = {AddressMode::AbsoluteX, "ROL"};
 
     // ROR - Rotate Right
-    opCodes[0x6A] = {AddressMode::Implied, "ROR"};
+    opCodes[0x6A] = {AddressMode::Accumulator, "ROR"};
     opCodes[0x66] = {AddressMode::Zeropage, "ROR"};
     opCodes[0x76] = {AddressMode::ZeropageX, "ROR"};
     opCodes[0x6E] = {AddressMode::Absolute, "ROR"};

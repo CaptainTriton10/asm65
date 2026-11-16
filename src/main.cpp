@@ -20,26 +20,53 @@ std::vector<std::string> getFileLines(std::string filename) {
     return lines;
 }
 
-int main() {
-    auto lines = getFileLines("test.asm");
+int main(int argc, char *argv[]) {
+    bool debug = false;
+    std::string outputStr = "out.bin";
+
+    if (argc == 1) {
+        std::cerr << "Must specify file" << std::endl;
+        return 1;
+    }
+
+    // for (int i = 0; i < argc; i++) {
+    //     std::cout << argv[i] == "-o" << std::endl;
+    //     if (argv[i] == "-d")
+    //         debug = true;
+
+    //     if (argv[i] == "-o") {
+    //         std::cout << argv[i + 1] << std::endl;
+    //         outputStr = argv[i + 1];
+    //     }
+    // }
+
+    auto lines = getFileLines(argv[1]);
     std::vector<Instruction> instructions;
 
     for (int i = 0; i < lines.size(); i++) {
+        if (debug) {
+            std::cout << "\n### " << lines[i] << " ###\n";
+        }
+
         Lexer lexer(lines[i]);
         std::vector<Token> tokens = lexer.tokenise();
 
-        for (int j = 0; j < tokens.size(); j++) {
-            std::cout << tokens[j] << " ";
+        if (debug) {
+            for (int j = 0; j < tokens.size(); j++) {
+                std::cout << tokens[j] << " ";
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
 
         auto instr = parse(tokens);
         instructions.push_back(instr);
 
-        std::cout << instr << std::endl;
+        if (debug) {
+            std::cout << instr << std::endl;
+        }
     }
 
-    compile("program.bin", instructions);
+    compile(outputStr, instructions);
 
     return 0;
 }

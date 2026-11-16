@@ -16,42 +16,74 @@ void Lexer::advance() {
 std::vector<Token> Lexer::tokenise() {
     std::vector<Token> tokens;
 
+    TokenType prevType = TokenType::INSTR;
+
     while (currentChar != '\0') {
         if (emptyChars.contains(currentChar)) {
             advance();
             continue;
-        } else if (textChars.contains(currentChar)) {
-            auto text = ingestText();
+        }
 
-            if (arrContains(instructions, text)) {
-                tokens.push_back({TokenType::INSTR, text});
+        if (currentChar == ';')
+            break;
+
+        if (textChars.contains(currentChar)) {
+            if (prevType != TokenType::OP_DOLLAR) {
+                auto text = ingestText();
+
+                if (arrContains(instructions, text)) {
+                    tokens.push_back({TokenType::INSTR, text});
+                    prevType = TokenType::INSTR;
+                } else {
+                    tokens.push_back({TokenType::LABEL, text});
+                    prevType = TokenType::LABEL;
+                }
+
+                continue;
+            }
+        }
+
+        if (numChars.contains(currentChar)) {
+            std::string value = ingestNumber();
+
+            if (value.size() >= 4) {
+                tokens.push_back({
+                    TokenType::VALUE,
+                    (uint16_t)std::stoi(value, nullptr, 16),
+                    true,
+                });
+
             } else {
-                tokens.push_back({TokenType::LABEL, text});
+                tokens.push_back({
+                    TokenType::VALUE,
+                    (uint16_t)std::stoi(value, nullptr, 16),
+                });
             }
 
-            continue;
-        } else if (numChars.contains(currentChar)) {
-            auto value = ingestNumber();
-            tokens.push_back({TokenType::VALUE, value});
-
+            prevType = TokenType::VALUE;
             continue;
         }
 
         switch (currentChar) {
             case '#':
                 tokens.push_back({TokenType::OP_HASH, "#"});
+                prevType = TokenType::OP_HASH;
                 break;
             case ',':
                 tokens.push_back({TokenType::OP_COMMA, ","});
+                prevType = TokenType::OP_COMMA;
                 break;
             case '$':
                 tokens.push_back({TokenType::OP_DOLLAR, "$"});
+                prevType = TokenType::OP_DOLLAR;
                 break;
             case '(':
                 tokens.push_back({TokenType::OP_LPAREN, "("});
+                prevType = TokenType::OP_LPAREN;
                 break;
             case ')':
                 tokens.push_back({TokenType::OP_RPAREN, ")"});
+                prevType = TokenType::OP_RPAREN;
                 break;
             default:
                 std::cerr << "Lexer: unknown token " << currentChar
@@ -79,7 +111,7 @@ std::string Lexer::ingestText() {
     return text;
 }
 
-uint8_t Lexer::ingestNumber() {
+std::string Lexer::ingestNumber() {
     std::string text = "";
 
     while (currentChar != '\0') {
@@ -91,5 +123,5 @@ uint8_t Lexer::ingestNumber() {
         }
     }
 
-    return (uint8_t)std::stoi(text);
+    return text;
 }

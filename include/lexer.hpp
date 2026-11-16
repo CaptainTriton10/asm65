@@ -8,7 +8,7 @@
 const std::string emptyChars = "\n\r\t ";
 const std::string textChars =
     "_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const std::string numChars = "0123456789";
+const std::string numChars = "0123456789abcdefABCDEF";
 
 enum class TokenType {
     INSTR,
@@ -32,6 +32,7 @@ constexpr std::array<std::string, 57> instructions = {
 struct Token {
     TokenType type;
     std::variant<uint16_t, std::string> value;
+    bool is16Bit = false;
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Token &t) {
@@ -55,7 +56,7 @@ class Lexer {
     void advance();
 
     std::string ingestText();
-    uint8_t ingestNumber();
+    std::string ingestNumber();
 
   public:
     Lexer(std::string _line) : line(_line) {

@@ -3,13 +3,13 @@
 
 SRC=src/*.cpp
 INCLUDE=include
-PROGRAM=build.exe
+PROGRAM=asm65.exe
 BUILD=build
 
 build:
 	@g++ -o $(BUILD)/$(PROGRAM) $(SRC) -I$(INCLUDE) -std=c++26
 
 run: build
-	@./$(BUILD)/$(PROGRAM)
+	@./$(BUILD)/$(PROGRAM) test.asm -o test.bin
 	@echo
-	@xxd program.bin
+	@xxd test.bin
